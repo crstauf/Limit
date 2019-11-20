@@ -265,31 +265,31 @@ function is_within_time_limits( $start, $end, $name = null ) {
  * @param string|int $name
  * @param mixed $if_truthy Value or callback if limit is truthy.
  * @param mixed $if_falsy Value or callback if limit is falsy.
- * @param null|int[]|float[]|callback $limits
+ * @param null|int[]|float[]|callback $limit
  *
  * @uses Limit::get()
  * @uses Limit::is_truthy()
  *
  * @return mixed
  */
-function if_within_limits( $name, $if_truthy, $if_falsy = null, $limits = null ) {
-	$limit = Limit::get( $name, $limits );
+function if_within_limits( $name, $if_truthy, $if_falsy = null, $limit = null ) {
+	$limit = Limit::get( $name, $limit );
 
-	# If truthy, return true statement.
+	# If truthy, use true statement.
 	if ( $limit->is_truthy() )
 		$return = $if_truthy;
 
-	# If falsy and false statement provided, return.
+	# If falsy and false statement provided, use it.
 	else if ( !is_null( $if_falsy ) )
 		$return = $if_falsy;
 
-	# If we've got a return value, return it).
+	# If we've got a return value, return it.
 	if ( !empty( $return ) )
 		return is_callable( $return )
 			? call_user_func( $return )
 			: $return;
 
-	# No return value; return empty value of same type (if possible).
+	# No return value; return empty value of same type of truthy statement.
 	switch ( gettype( $if_truthy ) ) {
 
 		case 'string':
