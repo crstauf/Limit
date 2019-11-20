@@ -1,6 +1,7 @@
 <?php
 /**
  * Plugin name: Limit
+ * Plugin URI: https://github.com/crstauf/Limit
  * Description: Set limits on anything.
  * Author: Caleb Stauffer
  * Author URI: develop.calebstauffer.com
@@ -10,7 +11,7 @@
 class Limit {
 
 	/**
-	 * @var array Registered limits.
+	 * @var Limit[] Registered Limits.
 	 */
 	protected static $registered = array();
 
@@ -37,11 +38,13 @@ class Limit {
 		# Filter the name.
 		$name = apply_filters( 'limit=' . $name . '/name', $name, $limit );
 
+		# Check if name is already registered.
 		if ( static::exists( $name ) ) {
 			trigger_error( sprintf( 'Limit with name <code>%s</code> is already registered.', $this->name ) );
 			return;
 		}
 
+		# Create and register the Limit.
 		static::_register( new self( $name, $limit ) );
 	}
 
@@ -111,12 +114,15 @@ class Limit {
 	 * @uses static::_register()
 	 */
 	protected function __construct( $name, $limit ) {
+		# Set properties.
 		$this->name = $name;
 		$this->limit = $limit;
 
+		# Use temp name if needed.
 		if ( empty( $this->name ) )
 			$this->name = static::temp_name();
 
+		# Register the Limit.
 		static::_register( $this );
 	}
 
@@ -159,7 +165,7 @@ class Limit {
 		# Default to false.
 		$limit = false;
 
-		# Check if two timestamps, and determine if between.
+		# Check if two timestamps, and determine if between them.
 		if (
 			is_array( $this->limit )
 			&& 2 === count( $this->limit )
@@ -175,7 +181,7 @@ class Limit {
 		else if ( is_callable( $this->limit ) )
 			$limit = call_user_func( $this->limit );
 
-		# Filter, and return.
+		# Filter evaluation, and return.
 		return ( bool ) apply_filters( 'limit=' . $this->name . '/evaluation', $limit, $this );
 	}
 
