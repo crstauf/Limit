@@ -160,13 +160,13 @@ class Limit {
 			$limit = (
 				   microtime( true ) >= $this->limit[0] // After starting time.
 				&& microtime( true ) <  $this->limit[1] // Before ending time.
-			) );
+			);
 
 		# Check if callback and get returned value.
 		else if ( is_callable( $this->limit ) )
 			$limit = call_user_func( $this->limit );
 
-		# Filter and return.
+		# Filter, and return.
 		return ( bool ) apply_filters( 'limit=' . $this->name . '/evaluation', $limit, $this );
 	}
 
@@ -221,13 +221,13 @@ function is_limitless( $name ) {
  * Helper to check if Limit is truthy.
  *
  * @param string|int $name
- * @param null|array|callback $limit
+ * @param null|int[]|float[]|callback $limit
  * @uses Limit::get()
  * @uses Limit::is_truth()
  * @return bool
  */
-function is_within_limits( $name ) {
-	return Limit::get( $name )->is_truthy();
+function is_within_limits( $name, $limit = null ) {
+	return Limit::get( $name, $limit )->is_truthy();
 }
 
 /**
@@ -251,8 +251,10 @@ function is_within_time_limits( $start, $end, $name = null ) {
  * @param mixed $if_truthy Value or callback if limit is truthy.
  * @param mixed $if_falsy Value or callback if limit is falsy.
  * @param null|int[]|float[]|callback $limits
+ *
  * @uses Limit::get()
  * @uses Limit::is_truthy()
+ *
  * @return mixed
  */
 function if_within_limits( $name, $if_truthy, $if_falsy = null, $limits = null ) {
