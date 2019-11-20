@@ -34,6 +34,9 @@ class Limit {
 	 * @uses static::_register()
 	 */
 	static function register( $name, $limit ) {
+		# Filter the name.
+		$name = apply_filters( 'limit=' . $name . '/name', $name, $limit );
+
 		if ( static::exists( $name ) ) {
 			trigger_error( sprintf( 'Limit with name <code>%s</code> is already registered.', $this->name ) );
 			return;
@@ -59,6 +62,9 @@ class Limit {
 	 * @return Limit
 	 */
 	static function get( $name, $limit = null ) {
+		# Filter the name.
+		$name = apply_filters( 'limit=' . $name . '/name', $name, $limit );
+
 		# If no limit provided.
 		if ( is_null( $limit ) ) {
 
@@ -81,6 +87,9 @@ class Limit {
 	 * @return bool
 	 */
 	static function exists( $name ) {
+		# Filter the name.
+		$name = apply_filters( 'limit=' . $name . '/name', $name );
+
 		return isset( static::$registered[$name] );
 	}
 
