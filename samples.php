@@ -27,6 +27,4 @@ Limit::register( 'Thanksgiving Day', array(
 	date_create( 'fourth Thursday of November 12:00am +1 day', wp_timezone() ),
 ) );
 
-# Register
-
 ?>
