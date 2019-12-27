@@ -8,6 +8,11 @@
  * Version: 1.0
  */
 
+/**
+ * Class.
+ *
+ * @todo test multiple limits
+ */
 class Limit {
 
 	/**
