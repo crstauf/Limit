@@ -22,6 +22,9 @@ class Limit {
 
 	/**
 	 * @var DateTime[]|callback Limiter.
+	 *
+	 * @todo convert to array
+	 * @todo make plural
 	 */
 	protected $limit;
 
@@ -33,6 +36,8 @@ class Limit {
 	 * @uses static::exists()
 	 * @uses self::__construct()
 	 * @uses static::_register()
+	 *
+	 * @todo convert second parameter to array
 	 */
 	static function register( $name, $limit ) {
 		# Filter the name.
@@ -63,6 +68,8 @@ class Limit {
 	 * @param string|int $name
 	 * @param null|DateTime[]|callback
 	 * @return Limit
+	 *
+	 * @todo convert second parameter to array
 	 */
 	static function get( $name, $limit = null ) {
 		# Filter the name.
@@ -112,6 +119,8 @@ class Limit {
 	 * @param DateTime[]|callback $limit
 	 * @uses static::temp_name()
 	 * @uses static::_register()
+	 *
+	 * @todo convert second parameter to array
 	 */
 	protected function __construct( $name, $limit ) {
 		# Set properties.
@@ -162,6 +171,8 @@ class Limit {
 	 * @uses $this::is_timestamps()
 	 * @uses $this::evaluate_timestamps()
 	 * @return bool
+	 *
+	 * @todo adjust to receive and evaluate multiple callbacks
 	 */
 	protected function evaluate_limit() {
 		# Default to false.
@@ -196,6 +207,8 @@ class Limit {
 	 * Evaluate timestamps limit.
 	 *
 	 * @return bool
+	 *
+	 * @todo adjust to receive and evaluate multiple DateTime ranges
 	 */
 	protected function evaluate_timestamps() {
 		$now = new DateTime( 'now', wp_timezone() );
@@ -218,6 +231,8 @@ class Limit {
  * @param string|int $name
  * @param DateTime[]|callback $limit
  * @uses Limit::register()
+ *
+ * @todo convert second parameter to array
  */
 function register_limit( $name, $limit ) {
 	Limit::register( $name, $limit );
@@ -230,6 +245,8 @@ function register_limit( $name, $limit ) {
  * @param null|DateTime[]|callback $limit
  * @uses Limit::get()
  * @return Limit
+ *
+ * @todo convert second parameter to array
  */
 function get_limit( $name, $limit = null ) {
 	return Limit::get( $name, $limit );
@@ -265,6 +282,8 @@ function is_limitless( $name ) {
  * @uses Limit::get()
  * @uses Limit::is_truth()
  * @return bool
+ *
+ * @todo convert second parameter to array
  */
 function is_within_limits( $name, $limit = null ) {
 	return Limit::get( $name, $limit )->is_truthy();
@@ -296,6 +315,8 @@ function is_within_time_limits( $start, $end, $name = null ) {
  * @uses Limit::is_truthy()
  *
  * @return mixed
+ *
+ * @todo convert fourth parameter to array
  */
 function if_within_limits( $name, $if_truthy, $if_falsy = null, $limit = null ) {
 	$limit = Limit::get( $name, $limit );
