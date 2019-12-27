@@ -21,27 +21,22 @@ class Limit {
 	protected $name;
 
 	/**
-	 * @var DateTime[]|callback Limiter.
-	 *
-	 * @todo convert to array
-	 * @todo make plural
+	 * @var array Array of limits.
 	 */
-	protected $limit;
+	protected $limits;
 
 	/**
 	 * Create and register Limit.
 	 *
 	 * @param string|int $name
-	 * @param DateTime[]|callback $limit
+	 * @param array $limits
 	 * @uses static::exists()
 	 * @uses self::__construct()
 	 * @uses static::_register()
-	 *
-	 * @todo convert second parameter to array
 	 */
-	static function register( $name, $limit ) {
+	static function register( $name, $limits ) {
 		# Filter the name.
-		$name = apply_filters( 'limit=' . $name . '/name', $name, $limit );
+		$name = apply_filters( 'limit=' . $name . '/name', $name, $limits );
 
 		# Check if name is already registered.
 		if ( static::exists( $name ) ) {
@@ -50,7 +45,7 @@ class Limit {
 		}
 
 		# Create and register the Limit.
-		static::_register( new self( $name, $limit ) );
+		static::_register( new self( $name, $limits ) );
 	}
 
 	/**
@@ -66,28 +61,26 @@ class Limit {
 	 * Get Limit.
 	 *
 	 * @param string|int $name
-	 * @param null|DateTime[]|callback
+	 * @param array $limits
 	 * @return Limit
-	 *
-	 * @todo convert second parameter to array
 	 */
-	static function get( $name, $limit = null ) {
+	static function get( $name, array $limits = array() ) {
 		# Filter the name.
-		$name = apply_filters( 'limit=' . $name . '/name', $name, $limit );
+		$name = apply_filters( 'limit=' . $name . '/name', $name, $limits );
 
-		# If no limit provided.
-		if ( is_null( $limit ) ) {
+		# If no limits provided.
+		if ( empty( $limits ) ) {
 
 			# Check if there's a Limit registered with the name, and return.
 			if ( isset( static::$registered[$name] ) )
 				return static::$registered[$name];
 
 			# If no registered Limit, create and return a new Limit that defaults to false.
-			return new self( $name, '__return_false' );
+			return new self( $name, array( '__return_false' ) );
 		}
 
 		# Create and return a new Limit.
-		return new self( $name, $limit );
+		return new self( $name, $limits );
 	}
 
 	/**
@@ -116,16 +109,14 @@ class Limit {
 	 * Construct.
 	 *
 	 * @param string|int $name
-	 * @param DateTime[]|callback $limit
+	 * @param array $limits
 	 * @uses static::temp_name()
 	 * @uses static::_register()
-	 *
-	 * @todo convert second parameter to array
 	 */
-	protected function __construct( $name, $limit ) {
+	protected function __construct( $name, array $limits ) {
 		# Set properties.
 		$this->name = $name;
-		$this->limit = $limit;
+		$this->limits = $limits;
 
 		# Use temp name if needed.
 		if ( empty( $this->name ) )
@@ -146,17 +137,17 @@ class Limit {
 	}
 
 	/**
-	 * Check if limit is truthy.
+	 * Check if limits are truthy.
 	 *
-	 * @uses $this::evaluate_limit()
+	 * @uses $this::evaluate_limits()
 	 * @return bool
 	 */
 	function is_truthy() {
-		return true === $this->evaluate_limit();
+		return true === $this->evaluate_limits();
 	}
 
 	/**
-	 * Check if limit is falsy.
+	 * Check if limits are falsy.
 	 *
 	 * @uses $this::is_truthy()
 	 * @return bool
@@ -166,60 +157,63 @@ class Limit {
 	}
 
 	/**
-	 * Evaluate the limit.
+	 * Evaluate the limits.
 	 *
 	 * @uses $this::is_timestamps()
 	 * @uses $this::evaluate_timestamps()
 	 * @return bool
-	 *
-	 * @todo adjust to receive and evaluate multiple callbacks
 	 */
-	protected function evaluate_limit() {
-		# Default to false.
-		$limit = false;
+	protected function evaluate_limits() {
+		# Check the limits.
+		foreach ( $this->limits as $limit ) {
 
-		# Check if two timestamps, and determine if between them.
-		if ( $this->is_timestamps() )
-			$limit = $this->evaluate_timestamps();
+			# Check if limit is two DateTime objects, and determine if between them.
+			if ( $this->is_timestamps( $limit ) ) {
+				if ( !$this->evaluate_timestamps( $limit ) )
+					return ( bool ) apply_filters( 'limit=' . $this->name . '/evaluation', false, $this, $limit );
 
-		# Check if callback and get returned value.
-		else if ( is_callable( $this->limit ) )
-			$limit = call_user_func( $this->limit );
+			# Check if callback and get returned value.
+			} else if ( is_callable( $limit ) )
+				if ( !call_user_func( $limit ) )
+					return ( bool ) apply_filters( 'limit=' . $this->name . '/evaluation', false, $this, $limit );
+
+		}
 
 		# Filter evaluation, and return.
-		return ( bool ) apply_filters( 'limit=' . $this->name . '/evaluation', $limit, $this );
+		return ( bool ) apply_filters( 'limit=' . $this->name . '/evaluation', true, $this );
 	}
 
 	/**
-	 * Check if limit is timestamps.
+	 * Check if limit is timestamp.
 	 *
+	 * @param mixed $limit
 	 * @return bool
 	 */
-	protected function is_timestamps() {
+	protected function is_timestamps( $limit ) {
 		return (
-			is_array( $this->limit )
-			&& 2 === count( $this->limit )
-			&& is_a( $this->limit[0], 'DateTime' )
+			is_array( $limit )
+			&& 2 === count( $limit )
+			&& is_a( $limit[0], 'DateTimeInterface' )
+			&& is_a( $limit[1], 'DateTimeInterface' )
 		);
 	}
 
 	/**
 	 * Evaluate timestamps limit.
 	 *
+	 * @param DateTimeInterface[] $limit
 	 * @return bool
-	 *
-	 * @todo adjust to receive and evaluate multiple DateTime ranges
 	 */
-	protected function evaluate_timestamps() {
+	protected function evaluate_timestamps( array $limit ) {
 		$now = new DateTime( 'now', wp_timezone() );
-		$limits = $this->limit;
 
-		foreach ( $limits as $datetime )
-			$datetime->setTimezone( wp_timezone() );
+		foreach ( $limit as $datetime )
+			if ( wp_timezone() !== $datetime->getTimezone() )
+				$datetime->setTimezone( wp_timezone() );
 
 		return (
-			   $now >= $limits[0]
-			&& $now <  $limits[1]
+			   $now >= $limit[0]
+			&& $now <  $limit[1]
 		);
 	}
 
@@ -229,27 +223,23 @@ class Limit {
  * Helper to create and register Limit.
  *
  * @param string|int $name
- * @param DateTime[]|callback $limit
+ * @param array $limits
  * @uses Limit::register()
- *
- * @todo convert second parameter to array
  */
-function register_limit( $name, $limit ) {
-	Limit::register( $name, $limit );
+function register_limit( $name, array $limits ) {
+	Limit::register( $name, $limits );
 }
 
 /**
  * Helper to get Limit object.
  *
  * @param string|int $name
- * @param null|DateTime[]|callback $limit
+ * @param array $limits
  * @uses Limit::get()
  * @return Limit
- *
- * @todo convert second parameter to array
  */
-function get_limit( $name, $limit = null ) {
-	return Limit::get( $name, $limit );
+function get_limit( $name, array $limits = array() ) {
+	return Limit::get( $name, $limits );
 }
 
 /**
@@ -278,15 +268,13 @@ function is_limitless( $name ) {
  * Helper to check if Limit is truthy.
  *
  * @param string|int $name
- * @param null|DateTime[]|callback $limit
+ * @param array $limits
  * @uses Limit::get()
  * @uses Limit::is_truth()
  * @return bool
- *
- * @todo convert second parameter to array
  */
-function is_within_limits( $name, $limit = null ) {
-	return Limit::get( $name, $limit )->is_truthy();
+function is_within_limits( $name, array $limits = array() ) {
+	return Limit::get( $name, $limits )->is_truthy();
 }
 
 /**
@@ -309,17 +297,15 @@ function is_within_time_limits( $start, $end, $name = null ) {
  * @param string|int $name
  * @param mixed $if_truthy Value or callback if limit is truthy.
  * @param mixed $if_falsy Value or callback if limit is falsy.
- * @param null|DateTime[]|callback $limit
+ * @param array $limits
  *
  * @uses Limit::get()
  * @uses Limit::is_truthy()
  *
  * @return mixed
- *
- * @todo convert fourth parameter to array
  */
-function if_within_limits( $name, $if_truthy, $if_falsy = null, $limit = null ) {
-	$limit = Limit::get( $name, $limit );
+function if_within_limits( $name, $if_truthy, $if_falsy = null, array $limits = array() ) {
+	$limit = Limit::get( $name, $limits );
 
 	# If truthy, use true statement.
 	if ( $limit->is_truthy() )
