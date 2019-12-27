@@ -159,21 +159,15 @@ class Limit {
 	/**
 	 * Evaluate the limit.
 	 *
+	 * @uses $this::is_timestamps()
 	 * @return bool
-	 *
-	 * @todo adjust to use DateTime objects
 	 */
 	protected function evaluate_limit() {
 		# Default to false.
 		$limit = false;
 
 		# Check if two timestamps, and determine if between them.
-		if (
-			is_array( $this->limit )
-			&& 2 === count( $this->limit )
-			&& is_numeric( $this->limit[0] )
-			&& is_numeric( $this->limit[1] )
-		)
+		if ( $this->is_timestamps() )
 			$limit = (
 				   microtime( true ) >= $this->limit[0] // After starting time.
 				&& microtime( true ) <  $this->limit[1] // Before ending time.
@@ -190,9 +184,14 @@ class Limit {
 	/**
 	 * Check if limit is timestamps.
 	 *
-	 * @todo define
+	 * @return bool
 	 */
 	 protected function is_timestamps() {
+	 	return (
+	 		is_array( $this->limits )
+	 		&& 2 === count( $this->limits )
+	 		&& is_a( $this->limits[0], 'DateTime' )
+	 	);
 	 }
 	 
 	 /**
