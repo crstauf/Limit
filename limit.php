@@ -29,7 +29,7 @@ class Limit {
 	 * Create and register Limit.
 	 *
 	 * @param string|int $name
-	 * @param int[]|float[]|callback $limit
+	 * @param DateTime[]|callback $limit
 	 * @uses static::exists()
 	 * @uses self::__construct()
 	 * @uses static::_register()
@@ -61,7 +61,7 @@ class Limit {
 	 * Get Limit.
 	 *
 	 * @param string|int $name
-	 * @param null|int[]|float[]|callback
+	 * @param null|DateTime[]|callback
 	 * @return Limit
 	 */
 	static function get( $name, $limit = null ) {
@@ -109,7 +109,7 @@ class Limit {
 	 * Construct.
 	 *
 	 * @param string|int $name
-	 * @param int[]|float[]|callback $limit
+	 * @param DateTime[]|callback $limit
 	 * @uses static::temp_name()
 	 * @uses static::_register()
 	 */
@@ -216,7 +216,7 @@ class Limit {
  * Helper to create and register Limit.
  *
  * @param string|int $name
- * @param int[]|float[]|callback $limit
+ * @param DateTime[]|callback $limit
  * @uses Limit::register()
  */
 function register_limit( $name, $limit ) {
@@ -227,7 +227,7 @@ function register_limit( $name, $limit ) {
  * Helper to get Limit object.
  *
  * @param string|int $name
- * @param null|int[]|float[]|callback $limit
+ * @param null|DateTime[]|callback $limit
  * @uses Limit::get()
  * @return Limit
  */
@@ -261,7 +261,7 @@ function is_limitless( $name ) {
  * Helper to check if Limit is truthy.
  *
  * @param string|int $name
- * @param null|int[]|float[]|callback $limit
+ * @param null|DateTime[]|callback $limit
  * @uses Limit::get()
  * @uses Limit::is_truth()
  * @return bool
@@ -290,7 +290,7 @@ function is_within_time_limits( $start, $end, $name = null ) {
  * @param string|int $name
  * @param mixed $if_truthy Value or callback if limit is truthy.
  * @param mixed $if_falsy Value or callback if limit is falsy.
- * @param null|int[]|float[]|callback $limit
+ * @param null|DateTime[]|callback $limit
  *
  * @uses Limit::get()
  * @uses Limit::is_truthy()
