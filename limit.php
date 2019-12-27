@@ -180,7 +180,7 @@ class Limit {
 		# Filter evaluation, and return.
 		return ( bool ) apply_filters( 'limit=' . $this->name . '/evaluation', $limit, $this );
 	}
-	
+
 	/**
 	 * Check if limit is timestamps.
 	 *
@@ -188,12 +188,12 @@ class Limit {
 	 */
 	protected function is_timestamps() {
 		return (
-			is_array( $this->limits )
-			&& 2 === count( $this->limits )
-			&& is_a( $this->limits[0], 'DateTime' )
+			is_array( $this->limit )
+			&& 2 === count( $this->limit )
+			&& is_a( $this->limit[0], 'DateTime' )
 		);
 	}
-	 
+
 	/**
 	 * Evaluate timestamps limit.
 	 *
@@ -201,7 +201,7 @@ class Limit {
 	 */
 	protected function evaluate_timestamps() {
 		$now = new DateTime( 'now', wp_timezone() );
-		$limits = $this->limits;
+		$limits = $this->limit;
 
 		foreach ( $limits as $datetime )
 			$datetime->setTimezone( wp_timezone() );
