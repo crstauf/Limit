@@ -21,7 +21,7 @@ class Limit {
 	protected $name;
 
 	/**
-	 * @var int[]|float[]|callback Limiter.
+	 * @var DateTime[]|callback Limiter.
 	 */
 	protected $limit;
 
