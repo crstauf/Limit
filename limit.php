@@ -160,7 +160,10 @@ class Limit {
 	 * Evaluate the limit.
 	 *
 	 * @uses $this::is_timestamps()
+	 * @uses $this::evaluate_timestamps()
 	 * @return bool
+	 *
+	 * @todo test timestamps
 	 */
 	protected function evaluate_limit() {
 		# Default to false.
@@ -168,10 +171,7 @@ class Limit {
 
 		# Check if two timestamps, and determine if between them.
 		if ( $this->is_timestamps() )
-			$limit = (
-				   microtime( true ) >= $this->limit[0] // After starting time.
-				&& microtime( true ) <  $this->limit[1] // Before ending time.
-			);
+			$limit = $this->evaluate_timestamps();
 
 		# Check if callback and get returned value.
 		else if ( is_callable( $this->limit ) )
@@ -197,9 +197,17 @@ class Limit {
 	 /**
 	  * Evaluate timestamps limit.
 	  *
-	  * @todo define
+	  * @return bool
+	  *
+	  * @todo check and convert timezones
 	  */
 	 protected function evaluate_timestamps() {
+	 	$now = new DateTime( 'now' );
+	 	
+	 	return (
+	 		   $now >= $this->limits[0]
+	 		&& $now <  $this->limits[1]
+	 	);
 	 }
 
 }
