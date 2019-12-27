@@ -2,8 +2,8 @@
 
 # Register business hours Limit.
 Limit::register( 'business-hours', array(
-	date_create( '9:00 am', wp_timezone() )->format( 'U' ),
-	date_create( '5:00 pm', wp_timezone() )->format( 'U' ),
+	date_create( '9:00 am', wp_timezone() ),
+	date_create( '5:00 pm', wp_timezone() ),
 ) );
 
 # Register non-business hours Limit.
@@ -23,10 +23,8 @@ Limit::register( 'weekend', function() {
 
 # Register Thanksgiving Limit.
 Limit::register( 'Thanksgiving Day', array(
-	date_create( 'fourth Thursday of November 12:00am',        wp_timezone() )->format( 'U' ),
-	date_create( 'fourth Thursday of November 12:00am +1 day', wp_timezone() )->format( 'U' ),
+	date_create( 'fourth Thursday of November 12:00am',        wp_timezone() ),
+	date_create( 'fourth Thursday of November 12:00am +1 day', wp_timezone() ),
 ) );
-
-# Register
 
 ?>

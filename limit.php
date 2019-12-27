@@ -159,6 +159,8 @@ class Limit {
 	/**
 	 * Evaluate the limit.
 	 *
+	 * @uses $this::is_timestamps()
+	 * @uses $this::evaluate_timestamps()
 	 * @return bool
 	 */
 	protected function evaluate_limit() {
@@ -166,16 +168,8 @@ class Limit {
 		$limit = false;
 
 		# Check if two timestamps, and determine if between them.
-		if (
-			is_array( $this->limit )
-			&& 2 === count( $this->limit )
-			&& is_numeric( $this->limit[0] )
-			&& is_numeric( $this->limit[1] )
-		)
-			$limit = (
-				   microtime( true ) >= $this->limit[0] // After starting time.
-				&& microtime( true ) <  $this->limit[1] // Before ending time.
-			);
+		if ( $this->is_timestamps() )
+			$limit = $this->evaluate_timestamps();
 
 		# Check if callback and get returned value.
 		else if ( is_callable( $this->limit ) )
@@ -183,6 +177,37 @@ class Limit {
 
 		# Filter evaluation, and return.
 		return ( bool ) apply_filters( 'limit=' . $this->name . '/evaluation', $limit, $this );
+	}
+
+	/**
+	 * Check if limit is timestamps.
+	 *
+	 * @return bool
+	 */
+	protected function is_timestamps() {
+		return (
+			is_array( $this->limit )
+			&& 2 === count( $this->limit )
+			&& is_a( $this->limit[0], 'DateTime' )
+		);
+	}
+
+	/**
+	 * Evaluate timestamps limit.
+	 *
+	 * @return bool
+	 */
+	protected function evaluate_timestamps() {
+		$now = new DateTime( 'now', wp_timezone() );
+		$limits = $this->limit;
+
+		foreach ( $limits as $datetime )
+			$datetime->setTimezone( wp_timezone() );
+
+		return (
+			   $now >= $limits[0]
+			&& $now <  $limits[1]
+		);
 	}
 
 }
