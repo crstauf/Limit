@@ -162,8 +162,6 @@ class Limit {
 	 * @uses $this::is_timestamps()
 	 * @uses $this::evaluate_timestamps()
 	 * @return bool
-	 *
-	 * @todo test timestamps
 	 */
 	protected function evaluate_limit() {
 		# Default to false.
