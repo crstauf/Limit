@@ -186,29 +186,31 @@ class Limit {
 	 *
 	 * @return bool
 	 */
-	 protected function is_timestamps() {
-	 	return (
-	 		is_array( $this->limits )
-	 		&& 2 === count( $this->limits )
-	 		&& is_a( $this->limits[0], 'DateTime' )
-	 	);
-	 }
+	protected function is_timestamps() {
+		return (
+			is_array( $this->limits )
+			&& 2 === count( $this->limits )
+			&& is_a( $this->limits[0], 'DateTime' )
+		);
+	}
 	 
-	 /**
-	  * Evaluate timestamps limit.
-	  *
-	  * @return bool
-	  *
-	  * @todo check and convert timezones
-	  */
-	 protected function evaluate_timestamps() {
-	 	$now = new DateTime( 'now' );
-	 	
-	 	return (
-	 		   $now >= $this->limits[0]
-	 		&& $now <  $this->limits[1]
-	 	);
-	 }
+	/**
+	 * Evaluate timestamps limit.
+	 *
+	 * @return bool
+	 */
+	protected function evaluate_timestamps() {
+		$now = new DateTime( 'now', wp_timezone() );
+		$limits = $this->limits;
+
+		foreach ( $limits as $datetime )
+			$datetime->setTimezone( wp_timezone() );
+
+		return (
+			   $now >= $limits[0]
+			&& $now <  $limits[1]
+		);
+	}
 
 }
 
