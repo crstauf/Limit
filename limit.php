@@ -160,6 +160,8 @@ class Limit {
 	 * Evaluate the limit.
 	 *
 	 * @return bool
+	 *
+	 * @todo adjust to use DateTime objects
 	 */
 	protected function evaluate_limit() {
 		# Default to false.
@@ -184,6 +186,22 @@ class Limit {
 		# Filter evaluation, and return.
 		return ( bool ) apply_filters( 'limit=' . $this->name . '/evaluation', $limit, $this );
 	}
+	
+	/**
+	 * Check if limit is timestamps.
+	 *
+	 * @todo define
+	 */
+	 protected function is_timestamps() {
+	 }
+	 
+	 /**
+	  * Evaluate timestamps limit.
+	  *
+	  * @todo define
+	  */
+	 protected function evaluate_timestamps() {
+	 }
 
 }
 
