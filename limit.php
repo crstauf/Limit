@@ -184,7 +184,7 @@ class Limit {
 
 		}
 
-		# Filter evaluation, and return.
+		# No failures: return true.
 		return ( bool ) apply_filters( 'limit=' . $this->name . '/evaluation', true, $this );
 	}
 
