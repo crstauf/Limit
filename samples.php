@@ -29,14 +29,8 @@ Limit::register( 'Thanksgiving Day', array( array(
 
 # Register Limit for Thanksgiving Day during business hours.
 Limit::register( 'Thanksgiving Day during business hours', array(
-	array(
-		date_create( '9:00 am', wp_timezone() ),
-		date_create( '5:00 pm', wp_timezone() ),
-	),
-	array(
-		date_create( 'fourth Thursday of November 12:00am',        wp_timezone() ),
-		date_create( 'fourth Thursday of November 12:00am +1 day', wp_timezone() ),
-	),
+	get_limit( 'Thanksgiving Day' )->is_truthy(),
+	get_limit( 'business-hours'   )->is_truthy(),
 ) );
 
 ?>
