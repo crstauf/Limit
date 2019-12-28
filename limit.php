@@ -45,7 +45,7 @@ class Limit {
 		}
 
 		# Create and register the Limit.
-		static::_register( new self( $name, $limit ) );
+		new self( $name, $limit );
 	}
 
 	/**
@@ -62,6 +62,7 @@ class Limit {
 	 *
 	 * @param string|int $name
 	 * @param null|DateTime[]|callback
+	 * @uses static::_exists()
 	 * @return Limit
 	 */
 	static function get( $name, $limit = null ) {
@@ -72,7 +73,7 @@ class Limit {
 		if ( is_null( $limit ) ) {
 
 			# Check if there's a Limit registered with the name, and return.
-			if ( isset( static::$registered[$name] ) )
+			if ( static::_exists( $name ) )
 				return static::$registered[$name];
 
 			# If no registered Limit, create and return a new Limit that defaults to false.
@@ -84,15 +85,26 @@ class Limit {
 	}
 
 	/**
-	 * Check if Limit is registered.
+	 * Check if Limit (with filtered name) is registered.
 	 *
 	 * @param string|int $name
+	 * @uses static::_exists()
 	 * @return bool
 	 */
 	static function exists( $name ) {
 		# Filter the name.
 		$name = apply_filters( 'limit=' . $name . '/name', $name );
 
+		return static::_exists( $name );
+	}
+	
+	/**
+	 * Check if Limit is registered.
+	 *
+	 * @param string|int $name
+	 * @return bool
+	 */
+	protected static function _exists( $name ) {
 		return isset( static::$registered[$name] );
 	}
 
