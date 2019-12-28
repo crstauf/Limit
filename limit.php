@@ -26,7 +26,7 @@ class Limit {
 	protected $name;
 
 	/**
-	 * @var array Array of limits.
+	 * @var array Array of limits for Limit.
 	 */
 	protected $limits;
 
@@ -39,7 +39,7 @@ class Limit {
 	 * @uses self::__construct()
 	 * @uses static::_register()
 	 */
-	static function register( $name, $limits ) {
+	static function register( $name, array $limits ) {
 		# Filter the name.
 		$name = apply_filters( 'limit=' . $name . '/name', $name, $limits );
 
