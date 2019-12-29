@@ -206,6 +206,8 @@ class Limit {
 	 *
 	 * @param mixed $limit
 	 * @return bool
+	 *
+	 * @todo adjust to use DatePeriod
 	 */
 	protected function is_timestamps( $limit ) {
 		return (
@@ -221,6 +223,8 @@ class Limit {
 	 *
 	 * @param DateTimeInterface[] $limit
 	 * @return bool
+	 *
+	 * @todo adjust to use DatePeriod
 	 */
 	protected function evaluate_timestamps( array $limit ) {
 		$now = new DateTime( 'now', wp_timezone() );
@@ -304,6 +308,8 @@ function is_within_limits( $name, array $limits = array() ) {
  * @uses Limit::get()
  * @uses Limit::is_truthy()
  * @return bool
+ *
+ * @todo adjust to use DatePeriod
  */
 function is_within_time_limits( $start, $end, $name = null ) {
 	return Limit::get( $name, array( $start, $end ) )->is_truthy();
