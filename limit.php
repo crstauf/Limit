@@ -10,8 +10,6 @@
 
 /**
  * Class.
- *
- * @todo test multiple limits
  */
 class Limit {
 
