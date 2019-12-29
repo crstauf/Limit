@@ -69,16 +69,19 @@ class Limit {
 		# Filter the name.
 		$name = apply_filters( 'limit=' . $name . '/name', $name, $limit );
 
-		# If no limit provided.
-		if ( is_null( $limit ) ) {
+		# Check if there's a Limit registered with the name, and return.
+		if ( static::_exists( $name ) ) {
 
-			# Check if there's a Limit registered with the name, and return.
-			if ( static::_exists( $name ) )
-				return static::$registered[$name];
+			# If attempting to create a Limit on the fly, trigger an error.
+			if ( !is_null( $limit ) )
+				trigger_error( sprintf( 'The Limit <code>%s</code> already exists; cannot create Limit with same name.', $name ) );
 
-			# If no registered Limit, create and return a new Limit that defaults to false.
-			return new self( $name, '__return_false' );
+			return static::$registered[$name];
 		}
+
+		# If no limit provided.
+		if ( is_null( $limit ) )
+			$limit = '__return_false';
 
 		# Create and return a new Limit.
 		return new self( $name, $limit );
@@ -97,7 +100,7 @@ class Limit {
 
 		return static::_exists( $name );
 	}
-	
+
 	/**
 	 * Check if Limit is registered.
 	 *
