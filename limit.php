@@ -67,25 +67,43 @@ class Limit {
 	 *
 	 * @param string|int $name
 	 * @param array $limits
+	 * @uses static::_exists()
 	 * @return Limit
 	 */
 	static function get( $name, array $limits = array() ) {
 		# Filter the name.
 		$name = apply_filters( 'limit=' . $name . '/name', $name, $limits );
 
-		# If no limits provided.
-		if ( empty( $limits ) ) {
+		# Check if there's a Limit registered with the name, and return.
+		if ( static::_exists( $name ) ) {
 
-			# Check if there's a Limit registered with the name, and return.
-			if ( isset( static::$registered[$name] ) )
-				return static::$registered[$name];
+			# If attempting to create a Limit on the fly, trigger an error.
+			if ( !is_null( $limit ) )
+				trigger_error( sprintf( 'The Limit <code>%s</code> already exists; cannot create Limit with same name.', $name ) );
 
-			# If no registered Limit, create and return a new Limit that defaults to false.
-			return new self( $name, array( '__return_false' ) );
+			return static::$registered[$name];
 		}
+
+		# If no limit provided.
+		if ( is_null( $limit ) )
+			$limit = '__return_false';
 
 		# Create and return a new Limit.
 		return new self( $name, $limits );
+	}
+
+	/**
+	 * Check if Limit (with filtered name) is registered.
+	 *
+	 * @param string|int $name
+	 * @uses static::_exists()
+	 * @return bool
+	 */
+	static function exists( $name ) {
+		# Filter the name.
+		$name = apply_filters( 'limit=' . $name . '/name', $name );
+
+		return static::_exists( $name );
 	}
 
 	/**
@@ -94,10 +112,7 @@ class Limit {
 	 * @param string|int $name
 	 * @return bool
 	 */
-	static function exists( $name ) {
-		# Filter the name.
-		$name = apply_filters( 'limit=' . $name . '/name', $name );
-
+	protected static function _exists( $name ) {
 		return isset( static::$registered[$name] );
 	}
 
