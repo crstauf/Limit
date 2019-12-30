@@ -76,7 +76,7 @@ class Limit {
 		if ( static::_exists( $name ) ) {
 
 			# If attempting to create a Limit on the fly, trigger an error.
-			if ( !is_null( $limit ) )
+			if ( !empty( $limit ) )
 				trigger_error( sprintf( 'The Limit <code>%s</code> already exists; cannot create Limit with same name.', $name ) );
 
 			return static::$registered[$name];
