@@ -177,8 +177,8 @@ class Limit {
 	/**
 	 * Evaluate the limits.
 	 *
-	 * @uses $this::is_timestamps()
-	 * @uses $this::evaluate_timestamps()
+	 * @uses $this::is_date_period()
+	 * @uses $this::evaluate_date_period()
 	 * @return bool
 	 */
 	protected function evaluate_limits() {
@@ -186,8 +186,8 @@ class Limit {
 		foreach ( $this->limits as $limit ) {
 
 			# Check if limit is two DateTime objects, and determine if between them.
-			if ( $this->is_timestamps( $limit ) ) {
-				if ( !$this->evaluate_timestamps( $limit ) )
+			if ( $this->is_date_period( $limit ) ) {
+				if ( !$this->evaluate_date_period( $limit ) )
 					return ( bool ) apply_filters( 'limit=' . $this->name . '/evaluation', false, $this, $limit );
 
 			# Check if callback and get returned value.
@@ -202,40 +202,42 @@ class Limit {
 	}
 
 	/**
-	 * Check if limit is timestamp.
+	 * Check if limit is DatePeriod.
 	 *
 	 * @param mixed $limit
 	 * @return bool
-	 *
-	 * @todo adjust to use DatePeriod
 	 */
-	protected function is_timestamps( $limit ) {
+	protected function is_date_period( $limit ) {
 		return (
-			is_array( $limit )
-			&& 2 === count( $limit )
-			&& is_a( $limit[0], 'DateTimeInterface' )
-			&& is_a( $limit[1], 'DateTimeInterface' )
+			is_object( $limit )
+			&& is_a( $limit, 'DatePeriod' )
 		);
 	}
 
 	/**
 	 * Evaluate timestamps limit.
 	 *
-	 * @param DateTimeInterface[] $limit
+	 * @param DatePeriod $date_period
 	 * @return bool
 	 *
 	 * @todo adjust to use DatePeriod
 	 */
-	protected function evaluate_timestamps( array $limit ) {
+	protected function evaluate_date_period( DatePeriod $date_period ) {
+		# Allow for easy adjustment of date period evaluation logic.
+		$pre = apply_filters( 'limit/pre_evaluate_date_period', null, $date_period, $this->name );
+
+		if ( !is_null( $pre ) )
+			return $pre;
+
 		$now = new DateTime( 'now', wp_timezone() );
 
-		foreach ( $limit as $datetime )
-			if ( wp_timezone() !== $datetime->getTimezone() )
-				$datetime->setTimezone( wp_timezone() );
+		# Get period start and end and convert to WordPress timezone.
+		$start = $date_period->getStartDate()->setTimezone( wp_timezone() );
+		  $end = $date_period->getEndDate()->setTimezone( wp_timezone() );
 
 		return (
-			   $now >= $limit[0]
-			&& $now <  $limit[1]
+			   $now >= $start
+			&& $now <  $end
 		);
 	}
 
