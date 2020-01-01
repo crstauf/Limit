@@ -309,19 +309,46 @@ function is_within_limits( $name, array $limits = array() ) {
 }
 
 /**
+ * Helper to check if within indicate time period.
+ *
+ * @param DatePeriod $period
+ * @param null|string|int $name
+ * @uses is_within_limits()
+ * @return bool
+ */
+function is_within_period( DatePeriod $period, $name = null ) {
+	return is_within_limits( $name, array( $period ) );
+}
+
+/**
  * Helper to check if within indicated time limits.
+ *
+ * @param int|float $start Start of time limit in UTC.
+ * @param int|float $end End of time limit in UTC.
+ * @param null|string|int $name
+ * @uses is_within_period()
+ * @return bool
+ */
+function is_within_seconds( $start, $end, $name = null ) {
+	$start = DateTime::createFromFormat( 'U', ( int ) floor( $start ) );
+	  $end = DateTime::createFromFormat( 'U', ( int ) floor( $end ) );
+
+	$period = new DatePeriod( $start, new DateInterval( 'P1D' ), $end );
+
+	return is_within_period( $period, $name );
+}
+
+/**
+ * Alias of is_within_seconds().
  *
  * @param int|float $start
  * @param int|float $end
  * @param null|string|int $name
- * @uses Limit::get()
- * @uses Limit::is_truthy()
+ * @uses is_within_seconds()
  * @return bool
- *
- * @todo adjust to use DatePeriod
  */
 function is_within_time_limits( $start, $end, $name = null ) {
-	return Limit::get( $name, array( $start, $end ) )->is_truthy();
+	return is_within_seconds( $start, $end, $name );
 }
 
 /**
