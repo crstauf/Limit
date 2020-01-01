@@ -219,8 +219,6 @@ class Limit {
 	 *
 	 * @param DatePeriod $date_period
 	 * @return bool
-	 *
-	 * @todo adjust to use DatePeriod
 	 */
 	protected function evaluate_date_period( DatePeriod $date_period ) {
 		# Allow for easy adjustment of date period evaluation logic.
