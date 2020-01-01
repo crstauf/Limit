@@ -233,7 +233,16 @@ class Limit {
 
 		# Get period start and end and convert to WordPress timezone.
 		$start = $date_period->getStartDate()->setTimezone( wp_timezone() );
-		  $end = $date_period->getEndDate()->setTimezone( wp_timezone() );
+
+		# Get the last date in the DatePeriod.
+		# Opinion: this is strange.
+		if ( !empty( $date_period->getEndDate() ) )
+			$end = $date_period->getEndDate();
+		else
+			foreach ( $date_period as $end )
+				continue;
+
+		$end->setTimezone( wp_timezone() );
 
 		return (
 			   $now >= $start
