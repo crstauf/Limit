@@ -25,7 +25,7 @@ Limit::register( 'weekend', array( function() {
 Limit::register( 'Thanksgiving Day', array( new DatePeriod(
 	date_create( 'fourth Thursday of November 12:00am', wp_timezone() ),
 	new DateInterval( 'P1D' ),
-	date_create( 'fourth Thursday of November 12:00am +1 day', wp_timezone() ),
+	1
 ) ) );
 
 # Register Limit for Thanksgiving Day during business hours.

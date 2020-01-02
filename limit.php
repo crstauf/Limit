@@ -311,7 +311,7 @@ function is_within_limits( $name, array $limits = array() ) {
 }
 
 /**
- * Helper to check if within indicate time period.
+ * Helper to check if within indicated time period.
  *
  * @param DatePeriod $period
  * @param null|string|int $name
