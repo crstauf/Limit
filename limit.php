@@ -229,7 +229,7 @@ class Limit {
 
 		$now = new DateTime( 'now', wp_timezone() );
 
-		# Get period start and end and convert to WordPress timezone.
+		# Get period start and convert to WordPress timezone.
 		$start = $date_period->getStartDate()->setTimezone( wp_timezone() );
 
 		# Get the last date in the DatePeriod.
@@ -240,7 +240,9 @@ class Limit {
 			foreach ( $date_period as $end )
 				continue;
 
-		$end->setTimezone( wp_timezone() );
+		# Convert period end to WordPress timezone.
+		# Set variable again in case object is DateTimeImmutable.
+		$end = $end->setTimezone( wp_timezone() );
 
 		return (
 			   $now >= $start
