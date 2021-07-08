@@ -177,8 +177,8 @@ class Limit {
 	/**
 	 * Evaluate the limits.
 	 *
-	 * @uses $this::is_timestamps()
-	 * @uses $this::evaluate_timestamps()
+	 * @uses $this::is_date_period()
+	 * @uses $this::evaluate_date_period()
 	 * @return bool
 	 */
 	protected function evaluate_limits() {
@@ -186,8 +186,8 @@ class Limit {
 		foreach ( $this->limits as $limit ) {
 
 			# Check if limit is two DateTime objects, and determine if between them.
-			if ( $this->is_timestamps( $limit ) ) {
-				if ( !$this->evaluate_timestamps( $limit ) )
+			if ( $this->is_date_period( $limit ) ) {
+				if ( !$this->evaluate_date_period( $limit ) )
 					return ( bool ) apply_filters( 'limit=' . $this->name . '/evaluation', false, $this, $limit );
 
 			# Check if callback and get returned value.
@@ -202,36 +202,51 @@ class Limit {
 	}
 
 	/**
-	 * Check if limit is timestamp.
+	 * Check if limit is DatePeriod.
 	 *
 	 * @param mixed $limit
 	 * @return bool
 	 */
-	protected function is_timestamps( $limit ) {
+	protected function is_date_period( $limit ) {
 		return (
-			is_array( $limit )
-			&& 2 === count( $limit )
-			&& is_a( $limit[0], 'DateTimeInterface' )
-			&& is_a( $limit[1], 'DateTimeInterface' )
+			is_object( $limit )
+			&& is_a( $limit, 'DatePeriod' )
 		);
 	}
 
 	/**
 	 * Evaluate timestamps limit.
 	 *
-	 * @param DateTimeInterface[] $limit
+	 * @param DatePeriod $date_period
 	 * @return bool
 	 */
-	protected function evaluate_timestamps( array $limit ) {
+	protected function evaluate_date_period( DatePeriod $date_period ) {
+		# Allow for easy adjustment of date period evaluation logic.
+		$pre = apply_filters( 'limit/pre_evaluate_date_period', null, $date_period, $this->name );
+
+		if ( !is_null( $pre ) )
+			return $pre;
+
 		$now = new DateTime( 'now', wp_timezone() );
 
-		foreach ( $limit as $datetime )
-			if ( wp_timezone() !== $datetime->getTimezone() )
-				$datetime->setTimezone( wp_timezone() );
+		# Get period start and convert to WordPress timezone.
+		$start = $date_period->getStartDate()->setTimezone( wp_timezone() );
+
+		# Get the last date in the DatePeriod.
+		# Opinion: this is strange.
+		if ( !empty( $date_period->getEndDate() ) )
+			$end = $date_period->getEndDate();
+		else
+			foreach ( $date_period as $end )
+				continue;
+
+		# Convert period end to WordPress timezone.
+		# Set variable again in case object is DateTimeImmutable.
+		$end = $end->setTimezone( wp_timezone() );
 
 		return (
-			   $now >= $limit[0]
-			&& $now <  $limit[1]
+			   $now >= $start
+			&& $now <  $end
 		);
 	}
 
@@ -296,17 +311,46 @@ function is_within_limits( $name, array $limits = array() ) {
 }
 
 /**
+ * Helper to check if within indicated time period.
+ *
+ * @param DatePeriod $period
+ * @param null|string|int $name
+ * @uses is_within_limits()
+ * @return bool
+ */
+function is_within_period( DatePeriod $period, $name = null ) {
+	return is_within_limits( $name, array( $period ) );
+}
+
+/**
  * Helper to check if within indicated time limits.
+ *
+ * @param int|float $start Start of time limit in UTC.
+ * @param int|float $end End of time limit in UTC.
+ * @param null|string|int $name
+ * @uses is_within_period()
+ * @return bool
+ */
+function is_within_seconds( $start, $end, $name = null ) {
+	$start = DateTime::createFromFormat( 'U', ( int ) floor( $start ) );
+	  $end = DateTime::createFromFormat( 'U', ( int ) floor( $end ) );
+
+	$period = new DatePeriod( $start, new DateInterval( 'P1D' ), $end );
+
+	return is_within_period( $period, $name );
+}
+
+/**
+ * Alias of is_within_seconds().
  *
  * @param int|float $start
  * @param int|float $end
  * @param null|string|int $name
- * @uses Limit::get()
- * @uses Limit::is_truthy()
+ * @uses is_within_seconds()
  * @return bool
  */
 function is_within_time_limits( $start, $end, $name = null ) {
-	return Limit::get( $name, array( $start, $end ) )->is_truthy();
+	return is_within_seconds( $start, $end, $name );
 }
 
 /**
